@@ -22,6 +22,9 @@ includes:
   _e2e:
     taskfile: ./taskfiles/e2e.yml
     dir: "{{.ROOT_DIR}}"
+  _test:
+    taskfile: ./taskfiles/test.yml
+    dir: "{{.ROOT_DIR}}"
 
 tasks:
   default:
@@ -50,6 +53,26 @@ tasks:
     desc: Run golangci-lint and export to file
     cmds:
       - task: _lint:lint-report
+
+  test:
+    desc: Run all unit tests
+    cmds:
+      - task: _test:test
+
+  test-report:
+    desc: Run unit tests and generate JSON report
+    cmds:
+      - task: _test:test-report
+
+  test-coverage:
+    desc: Run unit tests and generate coverage report
+    cmds:
+      - task: _test:test-coverage
+
+  test-coverage-report:
+    desc: Generate markdown coverage report
+    cmds:
+      - task: _test:test-coverage-report
 
   vuln:
     desc: Run vulnerability check

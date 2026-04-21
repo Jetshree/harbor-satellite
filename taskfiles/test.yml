@@ -1,0 +1,79 @@
+version: "3"
+
+tasks:
+  test:
+    desc: Run unit tests for all modules
+    cmds:
+      - task: test-satellite
+      - task: test-ground-control
+
+  test-satellite:
+    desc: Run unit tests for satellite
+    cmds:
+      - go test -v ./...
+
+  test-ground-control:
+    desc: Run unit tests for ground-control
+    dir: ground-control
+    cmds:
+      - go test -v ./...
+
+  test-report:
+    desc: Run unit tests and generate JSON report
+    cmds:
+      - task: test-report-satellite
+      - task: test-report-ground-control
+
+  test-report-satellite:
+    desc: Run unit tests for satellite with report
+    cmds:
+      - gotestsum --jsonfile TestReport-satellite.json -- ./...
+
+  test-report-ground-control:
+    desc: Run unit tests for ground-control with report
+    dir: ground-control
+    cmds:
+      - gotestsum --jsonfile ../TestReport-ground-control.json -- ./...
+
+  test-coverage:
+    desc: Run unit tests and generate coverage report
+    cmds:
+      - task: test-coverage-satellite
+      - task: test-coverage-ground-control
+
+  test-coverage-satellite:
+    desc: Run unit tests for satellite and generate coverage
+    cmds:
+      - go test -coverprofile=coverage-satellite.out ./...
+
+  test-coverage-ground-control:
+    desc: Run unit tests for ground-control and generate coverage
+    dir: ground-control
+    cmds:
+      - go test -coverprofile=../coverage-ground-control.out ./...
+
+  test-coverage-report:
+    desc: Generate markdown coverage report
+    cmds:
+      - |
+        echo "<h2> 📊 Test Coverage Results</h2>" > coverage-report.md
+        
+        # Satellite Coverage
+        if [ -f "coverage-satellite.out" ]; then
+          total_sat=$(go tool cover -func=coverage-satellite.out | grep total: | grep -Eo '[0-9]+\.[0-9]+')
+          echo "<h3>Satellite</h3>" >> coverage-report.md
+          echo "<p><b>Total coverage: $total_sat%</b></p>" >> coverage-report.md
+          echo "<details><summary>Detailed package coverage</summary><pre>" >> coverage-report.md
+          go tool cover -func=coverage-satellite.out >> coverage-report.md
+          echo "</pre></details>" >> coverage-report.md
+        fi
+        
+        # Ground Control Coverage
+        if [ -f "coverage-ground-control.out" ]; then
+          total_gc=$(go tool cover -func=coverage-ground-control.out | grep total: | grep -Eo '[0-9]+\.[0-9]+')
+          echo "<h3>Ground Control</h3>" >> coverage-report.md
+          echo "<p><b>Total coverage: $total_gc%</b></p>" >> coverage-report.md
+          echo "<details><summary>Detailed package coverage</summary><pre>" >> coverage-report.md
+          go tool cover -func=coverage-ground-control.out >> coverage-report.md
+          echo "</pre></details>" >> coverage-report.md
+        fi

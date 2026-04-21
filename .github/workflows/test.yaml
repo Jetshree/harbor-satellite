@@ -1,12 +1,62 @@
 name: Test Pipeline
 
 on:
+  push:
+    branches: main
   pull_request:
     paths-ignore:
       - "*.md"
       - "assets/**"
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.11"
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+
+      - name: Run unit tests
+        run: task test-report
+
+      - name: Summarize Tests (Satellite)
+        uses: robherley/go-test-action@v0.7.0
+        if: always()
+        with:
+          fromJSONFile: TestReport-satellite.json
+
+      - name: Summarize Tests (Ground Control)
+        uses: robherley/go-test-action@v0.7.0
+        if: always()
+        with:
+          fromJSONFile: TestReport-ground-control.json
+
+      - name: Run coverage
+        run: task test-coverage
+        if: success()
+
+      - name: Generate coverage report
+        run: task test-coverage-report
+        if: success()
+
+      - name: Add coverage to step summary
+        run: cat coverage-report.md >> $GITHUB_STEP_SUMMARY
+        if: success()
+
   vulnerability-check:
     runs-on: container-registry
     steps:
