@@ -69,3 +69,18 @@ func detectWithCheckers(statFn statFunc, lookPathFn lookPathFunc) []DetectedCRI 
 
 	return detected
 }
+
+// DetectImageDir checks for common rancher/k3s/rke2 image directories on the host.
+func DetectImageDir() string {
+	k3sDir := "/var/lib/rancher/k3s/agent/images"
+	rke2Dir := "/var/lib/rancher/rke2/agent/images"
+
+	if _, err := os.Stat(k3sDir); err == nil {
+		return k3sDir
+	}
+	if _, err := os.Stat(rke2Dir); err == nil {
+		return rke2Dir
+	}
+	return ""
+}
+

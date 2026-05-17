@@ -31,6 +31,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(s.AuthMiddleware)
 
+	// WhoAmI
+	api.HandleFunc("/whoami", s.whoamiHandler).Methods("GET")
+
 	// Groups
 	api.HandleFunc("/groups", s.listGroupHandler).Methods("GET")
 	api.HandleFunc("/groups/sync", s.groupsSyncHandler).Methods("POST")

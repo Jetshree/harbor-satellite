@@ -17,6 +17,7 @@ tags:
   - name: system
   - name: auth
   - name: users
+  - name: satellites
 securityDefinitions:
   BearerAuth:
     type: apiKey
@@ -121,6 +122,48 @@ definitions:
     properties:
       error:
         type: string
+  NullTime:
+    type: object
+    properties:
+      Time:
+        type: string
+        format: date-time
+      Valid:
+        type: boolean
+  NullString:
+    type: object
+    properties:
+      String:
+        type: string
+      Valid:
+        type: boolean
+  Satellite:
+    type: object
+    required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: integer
+        format: int32
+      name:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      last_seen:
+        $ref: '#/definitions/NullTime'
+      heartbeat_interval:
+        $ref: '#/definitions/NullString'
+  Satellites:
+    type: array
+    items:
+      $ref: '#/definitions/Satellite'
 paths:
   /ping:
     get:
@@ -393,6 +436,28 @@ paths:
             $ref: '#/definitions/ErrorResponse'
         '404':
           description: User not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/satellites:
+    get:
+      tags:
+        - satellites
+      operationId: listSatellites
+      summary: List all satellites
+      description: Bearer auth is recommended.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Satellites listed successfully
+          schema:
+            $ref: '#/definitions/Satellites'
+        '401':
+          description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
         '500':

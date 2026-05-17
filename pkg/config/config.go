@@ -41,6 +41,11 @@ type RegistryFallbackConfig struct {
 	Runtimes   []string `json:"runtimes,omitempty"`
 }
 
+type DirectDeliveryConfig struct {
+	Enabled  bool   `json:"enabled,omitempty"`
+	ImageDir string `json:"image_dir,omitempty"`
+}
+
 type AppConfig struct {
 	GroundControlURL          URL                    `json:"ground_control_url,omitempty"`
 	LogLevel                  string                 `json:"log_level,omitempty"`
@@ -56,6 +61,7 @@ type AppConfig struct {
 	EncryptConfig             bool                   `json:"encrypt_config,omitempty"`
 	RegistryFallback          RegistryFallbackConfig `json:"registry_fallback,omitempty"`
 	HarborRegistryURL        string                 `json:"harbor_registry_url,omitempty"`
+	DirectDelivery            DirectDeliveryConfig   `json:"direct_delivery,omitempty"`
 }
 
 type StateConfig struct {
